@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Popular-Movies</string>
+    <string name="main_menu_id">main_menu</string>
+    <string name="main_menu_name">Settings</string>
 </resources>
