@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,8 @@ public class DetailFragment extends Fragment {
     {
         View rootView = inflater.inflate(R.layout.movies_detail, container, false);
         Intent detailIntent = getActivity().getIntent();
+        ImageView newImage = (ImageView) rootView.findViewById(R.id.imageView2);
+        newImage.setImageResource(R.drawable.jaws);
         if (detailIntent != null && detailIntent.hasExtra(Intent.EXTRA_TEXT)) {
             String value = detailIntent.getStringExtra(Intent.EXTRA_TEXT);
             TextView newText = (TextView) rootView.findViewById(R.id.textView2);
