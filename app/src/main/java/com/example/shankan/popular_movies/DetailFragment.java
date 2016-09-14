@@ -23,7 +23,6 @@ public class DetailFragment extends Fragment {
                              Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.movies_detail, container, false);
-        GridView gridView = (GridView) rootView.findViewById(R.id.grid_layout);
         Intent detailIntent = getActivity().getIntent();
         if (detailIntent != null && detailIntent.hasExtra(Intent.EXTRA_TEXT)) {
             String value = detailIntent.getStringExtra(Intent.EXTRA_TEXT);
