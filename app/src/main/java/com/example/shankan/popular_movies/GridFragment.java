@@ -1,5 +1,6 @@
 package com.example.shankan.popular_movies;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -32,7 +33,10 @@ public class GridFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String newS = "sh" + i ;
+                Intent newIntent = new Intent (getActivity(), MoviesDetail.class );
                 Toast.makeText(getContext(),newS, Toast.LENGTH_SHORT).show();
+                newIntent.putExtra(Intent.EXTRA_TEXT,newS);
+                startActivity(newIntent);
             }
         });
         return rootView;

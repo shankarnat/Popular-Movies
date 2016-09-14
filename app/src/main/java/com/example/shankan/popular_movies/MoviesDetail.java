@@ -1,5 +1,6 @@
 package com.example.shankan.popular_movies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -8,7 +9,6 @@ import android.view.Menu;
  * Created by shankan on 9/14/2016.
  */
 public class MoviesDetail extends AppCompatActivity {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
