@@ -25,6 +25,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +38,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by shankan on 9/13/2016.
@@ -46,6 +53,9 @@ import java.text.SimpleDateFormat;
 public class MainFragment extends Fragment {
     public MainFragment() {
     }
+
+    public int apimovieCount;
+    SharedPreferences pref ;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
@@ -56,15 +66,37 @@ public class MainFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String newS = "sh" + i ;
+                //String newS = "sh" + i ;
                 Intent newIntent = new Intent (getActivity(), MoviesDetail.class );
-                Toast.makeText(getContext(),newS, Toast.LENGTH_SHORT).show();
-                newIntent.putExtra(Intent.EXTRA_TEXT,newS);
+             //   Toast.makeText(getContext(),newS, Toast.LENGTH_SHORT).show();
+                newIntent.putExtra(Intent.EXTRA_TEXT,i);
                 startActivity(newIntent);
             }
+
+
         });
         return rootView;
     }
+    public void updateWeather()
+    {
+        FetchMovieTask weatherTask = new FetchMovieTask();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sorttype = prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_rank));
+        Log.v("units type", sorttype);
+        weatherTask.execute(sorttype);
+    }
+
+    @Override
+    public  void onStart()
+    {
+        super.onStart();
+        int movieCount = 0;
+        pref = getActivity().getApplicationContext().getSharedPreferences("MyPref", 0);
+        updateWeather();
+
+
+    }
+
 
     public class GridElement extends BaseAdapter {
 
@@ -73,6 +105,7 @@ public class MainFragment extends Fragment {
         public GridElement(Context newContext)
         {
             mContext = newContext;
+            pref = getActivity().getApplicationContext().getSharedPreferences("MyPref", 0);
         }
         public Object getItem(int position) {
             return null;
@@ -103,24 +136,32 @@ public class MainFragment extends Fragment {
             {
                 imageView = (ImageView) convertView;
             }
-            imageView.setImageResource(mThumbIds[position]);
+            String imageName = pref.getString("image"+ position , null);
+            Log.v("Image name", "Imagename: " + imageName);
+            Log.v("positionimage","image" + position);
+            Picasso.with(getContext()).load(imageName).into(imageView);
+     //       Picasso.with(getContext()).load(resultStrs[position][2]).into(imageView);
+          //    imageView.setImageResource(mThumbIds[position]);
             return imageView;
         }
 
-
         @Override
         public int getCount(){
-            return 4;
+
+        apimovieCount = pref.getInt("count", 0);
+         return apimovieCount;
+      //     return 20;
+            //return resultStrs.length;
         }
 
-        public Integer[] mThumbIds = {
+     /*   public Integer[] mThumbIds = {
                 R.drawable.jaws, R.drawable.lionking,
                 R.drawable.star, R.drawable.taxidriver
-        };
+        }; */
     }
-    public class FetchMovieTask extends AsyncTask<String, Void, String[]> {
+    public class FetchMovieTask extends AsyncTask<String, Void, Integer> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
-
+            int movieCount =  0;
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
@@ -128,7 +169,7 @@ public class MainFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[][] getMovieDataFromJson(String movieJsonStr)
+        private Integer getMovieDataFromJson(String movieJsonStr)
                 throws JSONException {
             // These are the names of the JSON objects that need to be extracted.
             final String MV_RESULTS = "results";
@@ -139,7 +180,7 @@ public class MainFragment extends Fragment {
             final String MV_YEAR = "release_date";
             JSONObject movieJson = new JSONObject(movieJsonStr);
             JSONArray movieArray = movieJson.getJSONArray(MV_RESULTS);
-            String[][] resultStrs = new String[25][5];
+
 
             //get the value for each of the elements
             for(int i = 0; i < movieArray.length(); i++) {
@@ -164,43 +205,59 @@ public class MainFragment extends Fragment {
                 releaseyr = releaseyr.substring(0,4);
                 imagepath = aMovie.getString(MV_PSTR);
                 imagepath = "http://image.tmdb.org/t/p/w185" + imagepath ;
+
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString("image"+i,  imagepath);
+                editor.putString("title"+i,  title);
+                editor.putString("summary"+i,  summary);
+                editor.putString("rating"+i,  rating);
+                editor.putString("releaseyr"+i,  releaseyr);
+                editor.commit();
+                movieCount = movieCount + 1;
+                Log.v("image", "image"+i);
+               /*
                 resultStrs[i][0] = title;
                 resultStrs[i][1] = summary;
                 resultStrs[i][2] = imagepath;
                 resultStrs[i][3] = rating;
                 resultStrs[i][4] = releaseyr;
+*/
+
             }
+            return movieCount;
     /*      for (String s : resultStrs) {
                 Log.v(LOG_TAG, "Forecast entry: " + s);
             }*/
-            return resultStrs;
+          //  return resultStrs;
         }
         @Override
-        protected String[] doInBackground(String... params) {
+        protected Integer doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
             String format = "json";
             String units = "metric";
-            int numDays = 7;
+            int moviecnt = 0;
+            final String MOVIE_BASE_URL;
+            Log.v("units type1", params[0]);
+            if (params[0].equals("popularity"))
+            {
+                 MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/popular";}
+            else{
+                 MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
+            }
+
             try {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are available at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                final String MOVIE_BASE_URL =
-                        "https://api.themoviedb.org/3/movie/";
-                final String QUERY_PARAM = "q";
-                final String FORMAT_PARAM = "mode";
-                final String UNITS_PARAM = "units";
-                final String DAYS_PARAM = "cnt";
-                final String APPID_PARAM = "APPID";
+
+
+
+                final String APPID_PARAM = "api_key";
                 Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
-                        .appendQueryParameter(QUERY_PARAM, params[0])
-                        .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(UNITS_PARAM, units)
-                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_API_KEY)
                         .build();
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG, "Built URI " + builtUri.toString());
@@ -208,7 +265,7 @@ public class MainFragment extends Fragment {
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-                // Read the input stream into a String
+                // Read th  e input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
@@ -250,22 +307,27 @@ public class MainFragment extends Fragment {
             }
             try {
 
-                return getWeatherDataFromJson(forecastJsonStr, numDays);
+                 moviecnt =  getMovieDataFromJson(forecastJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
-            return null;
+            return moviecnt;
         }
-        protected void onPostExecute(String[] result) {
-            if (result != null) {
-                newAdapter.clear();
-                newAdapter.addAll(result);
+
+        protected void onPostExecute(Integer movieCount){
+                Log.v("counts", "count"+ movieCount);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putInt("count",  movieCount);
+            editor.commit();
+              //  apimovieCount = movieCount;
+              //  newAdapter.clear();
+               // newAdapter.addAll(result);
          /*       for(String dayForecastStr : result) {
                     newAdapter.add(dayForecastStr);
                 }*/
                 // New data is back from the server.  Hooray!
-            }
+
         }
     }
 }

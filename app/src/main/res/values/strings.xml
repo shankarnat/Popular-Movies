@@ -3,9 +3,9 @@
     <string name="main_menu_id">main_menu</string>
     <string name="main_menu_name">Settings</string>
     <string name="pref_units_label">Sort by</string>
-    <string name="pref_units_label_metric">Sort by Rank</string>
-    <string name="pref_units_label_imperial">Sort by Popularity</string>
+    <string name="pref_units_label_rank">Sort by Rank</string>
+    <string name="pref_units_label_popularity">Sort by Popularity</string>
     <string name="pref_units_key" translatable="false">sortby</string>
-    <string name="pref_units_metric" translatable="false">Rank</string>
-    <string name="pref_units_imperial" translatable="false">popularity</string>
+    <string name="pref_units_rank" translatable="false">Rank</string>
+    <string name="pref_units_popularity" translatable="false">popularity</string>
 </resources>

@@ -16,6 +16,12 @@ public class MainActivity extends AppCompatActivity {
         commit();
     }
 
+    protected void onRestart(){
+        super.onRestart();
+        startActivity(getIntent());
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu,menu);
