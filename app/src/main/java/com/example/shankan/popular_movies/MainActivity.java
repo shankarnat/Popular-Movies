@@ -6,6 +6,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+//Things to add:
+//1. Add some kind of loading view
+//2. Get the variables done
+//3. Reformat the movies detail screen
+
+
 public class MainActivity extends AppCompatActivity {
 
     @Override

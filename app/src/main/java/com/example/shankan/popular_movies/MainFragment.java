@@ -56,13 +56,13 @@ public class MainFragment extends Fragment {
 
     public int apimovieCount;
     SharedPreferences pref ;
+    GridView gridView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         View rootView = inflater.inflate(R.layout.grid_fragment, container, false);
-        GridView gridView = (GridView) rootView.findViewById(R.id.grid_layout);
-        gridView.setAdapter(new GridElement(getContext()));
+         gridView = (GridView) rootView.findViewById(R.id.grid_layout);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -262,12 +262,23 @@ public class MainFragment extends Fragment {
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG, "Built URI " + builtUri.toString());
                 // Create the request to OpenWeatherMap, and open the connection
+                URL url2 = new URL ("http://semanticbackend.azurewebsites.net/api/values");
+                HttpURLConnection urlConnection1 = (HttpURLConnection)  url2.openConnection();
+                urlConnection1.setRequestMethod("GET");
+                urlConnection1.connect();
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
                 // Read th  e input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
+                InputStream inputStream1 = urlConnection1.getInputStream();
+                StringBuffer buffer1 = new StringBuffer();
+                BufferedReader reader1 = new BufferedReader(new InputStreamReader(inputStream1));
+
+                buffer1.append(reader1.readLine());
+                Log.v("testing mike",buffer1.toString());
+                forecastJsonStr = buffer.toString();
                 if (inputStream == null) {
                     // Nothing to do.
                     forecastJsonStr = null;
@@ -320,7 +331,9 @@ public class MainFragment extends Fragment {
             SharedPreferences.Editor editor = pref.edit();
             editor.putInt("count",  movieCount);
             editor.commit();
-              //  apimovieCount = movieCount;
+            gridView.setAdapter(new GridElement(getContext()));
+
+            //  apimovieCount = movieCount;
               //  newAdapter.clear();
                // newAdapter.addAll(result);
          /*       for(String dayForecastStr : result) {

@@ -47,6 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18dp"
+        android:gravity="fill_horizontal"
         android:text="his has to got to do with writing a long summary for this patricular movie. the "
         android:id="@+id/textView5"
         android:layout_marginTop="24dp"
