@@ -37,20 +37,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
 
 /**
  * Created by shankan on 9/13/2016.
  */
-//API Key to get the latest movie from Movie DB.
-//https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=734430c2463674e1087d4aae938e966b
-//https://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&api_key=734430c2463674e1087d4aae938e966b
+// Image and Grid View tutorial from http://www.androidhive.info/2012/02/android-gridview-layout-tutorial
+// Adapted it for our scenarios
 public class MainFragment extends Fragment {
+
     public MainFragment() {
     }
 
@@ -66,14 +61,10 @@ public class MainFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //String newS = "sh" + i ;
                 Intent newIntent = new Intent (getActivity(), MoviesDetail.class );
-             //   Toast.makeText(getContext(),newS, Toast.LENGTH_SHORT).show();
                 newIntent.putExtra(Intent.EXTRA_TEXT,i);
                 startActivity(newIntent);
             }
-
-
         });
         return rootView;
     }
@@ -93,8 +84,6 @@ public class MainFragment extends Fragment {
         int movieCount = 0;
         pref = getActivity().getApplicationContext().getSharedPreferences("MyPref", 0);
         updateWeather();
-
-
     }
 
 
@@ -129,8 +118,6 @@ public class MainFragment extends Fragment {
                 int deviceHeight = displayMetrics.heightPixels;
                 imageView.getLayoutParams().height = deviceHeight/2  ;
                 imageView.getLayoutParams().width = deviceWidth/2 ;
-
-
             }
             else
             {
@@ -140,24 +127,16 @@ public class MainFragment extends Fragment {
             Log.v("Image name", "Imagename: " + imageName);
             Log.v("positionimage","image" + position);
             Picasso.with(getContext()).load(imageName).into(imageView);
-     //       Picasso.with(getContext()).load(resultStrs[position][2]).into(imageView);
-          //    imageView.setImageResource(mThumbIds[position]);
             return imageView;
         }
 
         @Override
         public int getCount(){
-
-        apimovieCount = pref.getInt("count", 0);
-         return apimovieCount;
-      //     return 20;
-            //return resultStrs.length;
+            apimovieCount = pref.getInt("count", 0);
+            return apimovieCount;
         }
 
-     /*   public Integer[] mThumbIds = {
-                R.drawable.jaws, R.drawable.lionking,
-                R.drawable.star, R.drawable.taxidriver
-        }; */
+
     }
     public class FetchMovieTask extends AsyncTask<String, Void, Integer> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
@@ -225,16 +204,12 @@ public class MainFragment extends Fragment {
 
             }
             return movieCount;
-    /*      for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
-            }*/
-          //  return resultStrs;
         }
+
         @Override
         protected Integer doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-            // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
             String format = "json";
             String units = "metric";
@@ -247,21 +222,13 @@ public class MainFragment extends Fragment {
             else{
                  MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/top_rated";
             }
-
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are available at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
-
-
-
                 final String APPID_PARAM = "api_key";
                 Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
                         .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_API_KEY)
                         .build();
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-                // Create the request to OpenWeatherMap, and open the connection
                 URL url2 = new URL ("http://semanticbackend.azurewebsites.net/api/values");
                 HttpURLConnection urlConnection1 = (HttpURLConnection)  url2.openConnection();
                 urlConnection1.setRequestMethod("GET");
@@ -332,15 +299,6 @@ public class MainFragment extends Fragment {
             editor.putInt("count",  movieCount);
             editor.commit();
             gridView.setAdapter(new GridElement(getContext()));
-
-            //  apimovieCount = movieCount;
-              //  newAdapter.clear();
-               // newAdapter.addAll(result);
-         /*       for(String dayForecastStr : result) {
-                    newAdapter.add(dayForecastStr);
-                }*/
-                // New data is back from the server.  Hooray!
-
-        }
+          }
     }
 }
