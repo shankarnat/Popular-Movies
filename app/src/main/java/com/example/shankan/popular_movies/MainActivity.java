@@ -1,5 +1,6 @@
 package com.example.shankan.popular_movies;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(getIntent());
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
