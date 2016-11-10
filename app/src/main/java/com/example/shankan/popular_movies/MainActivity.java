@@ -1,25 +1,27 @@
 package com.example.shankan.popular_movies;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-//Things to add:
-//1. Add some kind of loading view
-//2. Get the variables done
-//3. Reformat the movies detail screen
-
 
 public class MainActivity extends AppCompatActivity {
 
+    String mSortType;
+    private final String MOVIEFRAGMENT_TAG = "MVTAG";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs
+                = PreferenceManager.getDefaultSharedPreferences(this);
+        mSortType = prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_rank));
+
         setContentView(R.layout.activity_main);
-        getSupportFragmentManager().beginTransaction().add(R.id.container, new MainFragment()).
+        getSupportFragmentManager().beginTransaction().add(R.id.container, new MainFragment(), MOVIEFRAGMENT_TAG).
         commit();
     }
 
@@ -38,20 +40,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         if (id == R.id.main_menu_id)
         {
             Intent settingsIntent = new Intent(this , SettingsActivity.class);
             startActivity(settingsIntent);
             return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs
+                = PreferenceManager.getDefaultSharedPreferences(this);
+        String sorttype = prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_rank));
+        // update the location in our second pane using the fragment manager
+        if (sorttype != null && !sorttype.equals(mSortType)) {
+            MainFragment mv = (MainFragment) getSupportFragmentManager().findFragmentByTag(MOVIEFRAGMENT_TAG);
+            if ( null != mv ) {
+                mv.onSortChanged();
+            }
+            mSortType = sorttype;
+        }
+    }
 }

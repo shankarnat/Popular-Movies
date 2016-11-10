@@ -32,8 +32,6 @@ import com.example.shankan.popular_movies.data.MovieContract;
  */
 public class FetchMovieTask extends AsyncTask<String, Void, Void> {
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
-    int movieCount =  0;
-
     Context myContext;
 
     public FetchMovieTask(Context newContext    ){
@@ -51,12 +49,13 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         final String  MV_RATING  = "vote_average";
         final String MV_YEAR = "release_date";
         final String MV_ID = "id";
+        Uri newUri = Uri.EMPTY;
         JSONObject movieJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = movieJson.getJSONArray(MV_RESULTS);
         Vector<ContentValues> cVVector_rank = new Vector<ContentValues>(movieArray.length());
         Vector<ContentValues> cVVector_popularity = new Vector<ContentValues>(movieArray.length());
 
-
+        ContentValues movieValues = new ContentValues();
         //get the value for each of the elements
         for(int i = 0; i < movieArray.length(); i++) {
             // For now, using the format "Day, description, hi/low"
@@ -79,9 +78,9 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             rating = aMovie.getString(MV_RATING);
             movieid = aMovie.getInt(MV_ID);
             //To just get the year, it is the first four characters; hence doing a substring
-            releaseyr = releaseyr.substring(0,4);
-            imagepath = "http://image.tmdb.org/t/p/w185" +  aMovie.getString(MV_PSTR);
-            ContentValues movieValues = new ContentValues();
+            releaseyr = releaseyr.substring(0, 4);
+            imagepath = "http://image.tmdb.org/t/p/w185" + aMovie.getString(MV_PSTR);
+
 
             //Create and put all the movie values here
             movieValues.put(MovieContract.MoviesEntry.COLUMN_OVERVIEW, summary);
@@ -90,40 +89,24 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             movieValues.put(MovieContract.MoviesEntry.COLUMN_VOTEAVG, rating);
             movieValues.put(MovieContract.MoviesEntry.COLUMN_POSTER_PATH, imagepath);
             movieValues.put(MovieContract.MoviesEntry.COLUMN_MOVIEKEY, movieid);
-            if (menuOption.contains("popularity"))
+            if (menuOption.contains("popular"))
             {
                 movieValues.put(MovieContract.MoviesEntry.COLUMN_FAVOURITE,"popularity");
-                cVVector_popularity.add(movieValues);
-                if ( cVVector_popularity.size() > 0 ) {
-                    ContentValues[] cvArray = new ContentValues[cVVector_popularity.size()];
-                    cVVector_popularity.toArray(cvArray);
+                newUri = MovieContract.MoviesEntry.CONTENT_URI.buildUpon().appendPath("popularity").build();
+                Uri xUri =  myContext.getContentResolver().insert(newUri, movieValues);
 
-                    movieCount = myContext.getContentResolver().bulkInsert(MovieContract.MoviesEntry.CONTENT_URI, cvArray);
                 }
-            }
+
             else{
-                movieValues.put(MovieContract.MoviesEntry.COLUMN_FAVOURITE,"rank");
-                cVVector_rank.add(movieValues);
-                if ( cVVector_rank.size() > 0 ) {
-                    ContentValues[] cvArray = new ContentValues[cVVector_rank.size()];
-                    cVVector_rank.toArray(cvArray);
-                    movieCount = myContext.getContentResolver().bulkInsert(MovieContract.MoviesEntry.CONTENT_URI, cvArray);
+                movieValues.put(MovieContract.MoviesEntry.COLUMN_FAVOURITE,"Rank");
+                newUri = MovieContract.MoviesEntry.CONTENT_URI.buildUpon().appendPath("Rank").build();
+                Uri xUri =  myContext.getContentResolver().insert(newUri, movieValues);
+
                 }
-            }
-
-
-
-              /*
-                resultStrs[i][0] = title;
-                resultStrs[i][1] = summary;
-                resultStrs[i][2] = imagepath;
-                resultStrs[i][3] = rating;
-                resultStrs[i][4] = releaseyr;
-*/
-
-        }
+             }
         return null;
-    }
+       }
+
 
     @Override
     protected Void doInBackground(String... params) {
@@ -132,7 +115,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         BufferedReader reader = null;
         String forecastJsonStr = null;
 
-        Log.v("units type1", params[0]);
+//        Log.v("units type1", params[0]);
         final String [] MOVIE_URL = {
                 "https://api.themoviedb.org/3/movie/popular",
                 "https://api.themoviedb.org/3/movie/top_rated"
@@ -148,7 +131,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-                // Read th  e input stream into a String
+                // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 forecastJsonStr = buffer.toString();

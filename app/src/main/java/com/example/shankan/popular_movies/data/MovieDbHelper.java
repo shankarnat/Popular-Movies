@@ -31,17 +31,20 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 // forecasting, it's reasonable to assume the user will want information
                 // for a certain date and all dates *following*, so the forecast data
                 // should be sorted accordingly.
-                MoviesEntry.COLUMN_MOVIEKEY  + " INTEGER PRIMARY KEY ," +
+                MoviesEntry.COLUMN_MOVIEID  + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                MoviesEntry.COLUMN_MOVIEKEY  + " INTEGER  ," +
 
                 // the ID of the location entry associated with this weather data
-                MoviesEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
-                MoviesEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
-                MoviesEntry.COLUMN_FAVOURITE + " TEXT NOT NULL, " +
-                MoviesEntry.COLUMN_RELEASE_DATE + " INTEGER NOT NULL," +
+                MoviesEntry.COLUMN_TITLE + " TEXT , " +
+                MoviesEntry.COLUMN_OVERVIEW + " TEXT , " +
+                MoviesEntry.COLUMN_FAVOURITE + " TEXT , " +
+                MoviesEntry.COLUMN_RELEASE_DATE + " INTEGER ," +
 
-                MoviesEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
-                MoviesEntry.COLUMN_VOTEAVG  + " TEXT NOT NULL, " +
-                " UNIQUE (" + MoviesEntry.COLUMN_MOVIEKEY +  ") ON CONFLICT REPLACE);"
+                MoviesEntry.COLUMN_POSTER_PATH + " TEXT , " +
+                MoviesEntry.COLUMN_VOTEAVG  + " TEXT , " +
+                MoviesEntry.COLUMN_MOVIEAPITYPE  + " TEXT, " +
+                " UNIQUE (" + MoviesEntry.COLUMN_MOVIEKEY + ", " +
+                MoviesEntry.COLUMN_TITLE + ") ON CONFLICT REPLACE);"
                 ;
 
 

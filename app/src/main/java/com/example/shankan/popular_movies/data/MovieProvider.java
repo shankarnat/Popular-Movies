@@ -24,6 +24,7 @@ public class MovieProvider extends ContentProvider{
     static final int REVIEWS = 200;
     static final int VIDEOS = 300;
 
+
     static UriMatcher buildUriMatcher(){
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MovieContract.CONTENT_AUTHORITY;
@@ -137,6 +138,14 @@ public class MovieProvider extends ContentProvider{
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+       String a = uri.toString();
+        if (a.contains("Rank")) {
+            a = a.substring(0, a.length() - 5);
+        }
+        else{
+            a = a.substring(0, a.length() - 11);
+        }
+        uri = Uri.parse(a);
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
@@ -167,8 +176,10 @@ public class MovieProvider extends ContentProvider{
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+
             default:
                 return super.bulkInsert(uri, values);
+
         }
     }
 
