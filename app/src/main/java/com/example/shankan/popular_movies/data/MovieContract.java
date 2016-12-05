@@ -26,6 +26,10 @@ public class MovieContract {
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES).build();
+        public static final Uri REVIEW_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
+        public static final Uri VIDEOS_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_VIDEOS).build();
 
         public static final String TABLE_NAME = "movies";
         public static final String COLUMN_MOVIEID = "_id";
@@ -51,9 +55,9 @@ public class MovieContract {
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
-
+        public static final String COLUMN_ID = "_id";
         public static final String TABLE_NAME = "reviews";
-        public static final String COLUMN_REVIEWS_ID = "reviewid";
+        public static final String COLUMN_REVIEWS_ID = "reviewsmovieid";
         public static final String COLUMN_REVIEWS_AUTHOR = "reviewauthor";
         public static final String COLUMN_REVIEWS_CONTENT = "reviewcontent";
         public static final String COLUMN_MOVIEKEY = "moviekey";
@@ -67,9 +71,11 @@ public class MovieContract {
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_VIDEOS).build();
         public static final String TABLE_NAME = "videos";
+        public static final String COLUMN_ID = "_id";
         public static final String COLUMN_VIDEOS_URL = "videourl";
         public static final String COLUMN_VIDEOS_ID = "videoid";
         public static final String COLUMN_VIDEOS_NAME = "videoname";
+        public static final String COLUMN_VIDEOS_SIZE = "videosize";
         public static final String COLUMN_MOVIEKEY = "moviekey";
 
         public static Uri buildVideoUri(long id) {

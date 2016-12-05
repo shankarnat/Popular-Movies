@@ -44,31 +44,37 @@ public class MovieDbHelper extends SQLiteOpenHelper{
                 MoviesEntry.COLUMN_VOTEAVG  + " TEXT , " +
                 MoviesEntry.COLUMN_MOVIEAPITYPE  + " TEXT, " +
                 " UNIQUE (" + MoviesEntry.COLUMN_MOVIEKEY + ", " +
-                MoviesEntry.COLUMN_TITLE + ") ON CONFLICT REPLACE);"
-                ;
+                MoviesEntry.COLUMN_TITLE + "," + MoviesEntry.COLUMN_FAVOURITE + ") ON CONFLICT REPLACE);";
 
 
         final String SQL_CREATE_VIDEOS_TABLE = "CREATE TABLE " + VideoEntry.TABLE_NAME + " (" +
-
+                VideoEntry.COLUMN_ID  + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 VideoEntry.COLUMN_MOVIEKEY + " INTEGER NOT NULL ," +
 
                 // the ID of the location entry associated with this weather data
                 VideoEntry.COLUMN_VIDEOS_URL + " TEXT NOT NULL, " +
                 VideoEntry.COLUMN_VIDEOS_ID + " INTEGER PRIMARY KEY, " +
                 VideoEntry.COLUMN_VIDEOS_NAME + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_VIDEOS_SIZE + " INTEGER NOT NULL, " +
                 " FOREIGN KEY (" + VideoEntry.COLUMN_MOVIEKEY + ") REFERENCES " +
-                MoviesEntry.TABLE_NAME + " (" + MoviesEntry.COLUMN_MOVIEKEY + ")" + ");" ;
+                MoviesEntry.TABLE_NAME + " (" + MoviesEntry.COLUMN_MOVIEKEY + ")" +
+                " UNIQUE (" + VideoEntry.COLUMN_VIDEOS_ID + ", " +
+                VideoEntry.COLUMN_VIDEOS_URL + "," + VideoEntry.COLUMN_VIDEOS_NAME  +
+                "," + VideoEntry.COLUMN_VIDEOS_SIZE  +") ON CONFLICT REPLACE);" ;
 
         final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
-
+                ReviewsEntry.COLUMN_ID  + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 ReviewsEntry.COLUMN_MOVIEKEY + " INTEGER NOT NULL ," +
 
                 // the ID of the location entry associated with this weather data
                 ReviewsEntry.COLUMN_REVIEWS_AUTHOR + " TEXT NOT NULL, " +
-                ReviewsEntry.COLUMN_REVIEWS_ID + " INTEGER PRIMARY KEY , " +
+                ReviewsEntry.COLUMN_REVIEWS_ID + " INTEGER NOT NULL , " +
                 ReviewsEntry.COLUMN_REVIEWS_CONTENT  + " TEXT NOT NULL, " +
                 " FOREIGN KEY (" + ReviewsEntry.COLUMN_MOVIEKEY + ") REFERENCES " +
-                MoviesEntry.TABLE_NAME + " (" + MoviesEntry.COLUMN_MOVIEKEY + ")" + ");" ;
+                MoviesEntry.TABLE_NAME + " (" + MoviesEntry.COLUMN_MOVIEKEY + ")" +
+                " UNIQUE (" + ReviewsEntry.COLUMN_REVIEWS_ID + ", " +
+                ReviewsEntry.COLUMN_REVIEWS_AUTHOR + "," + ReviewsEntry.COLUMN_REVIEWS_CONTENT  +
+                ") ON CONFLICT REPLACE);" ;
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_VIDEOS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_REVIEWS_TABLE);
