@@ -1,36 +1,25 @@
 package com.example.shankan.popular_movies;
 
-
-import android.app.Activity;
-import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.GridView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Vector;
-
-import com.example.shankan.popular_movies.MainFragment;
 import com.example.shankan.popular_movies.data.MovieContract;
 
 /**
  * Created by shankan on 11/6/2016.
  */
-public class FetchMovieTask extends AsyncTask<String, Void, Void> {
+public class FetchMovieTask extends AsyncTask<Void, Void, Void> {
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
     Context myContext;
     final String APPID_PARAM;
@@ -39,115 +28,118 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         myContext = newContext;
         APPID_PARAM= "api_key";
     }
- // Insert reviews data into sqlite
 
- //Insert videos data into sqlite
-
-    private Void insertReviewFromId(String movieID)
+    private Void insertReviewFromId(int [] movieIDs)
             throws JSONException {
-        String baseURL = "https://api.themoviedb.org/3/movie/" + movieID + "/reviews";
-        Uri builtUri = Uri.parse(baseURL).buildUpon()
-                .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_API_KEY)
-                .build();
-        String reviews_value = getConnection(builtUri);
-        JSONObject reviewsJson = new JSONObject(reviews_value);
-        final String RV_ID = "id";
-        final String RV_AUTHOR = "author";
-        final String RV_CONTENT = "content";
-        final String RV_RESULTS = "results";
-        ContentValues reviewValues = new ContentValues();
 
-        JSONArray reviewArray = reviewsJson.getJSONArray(RV_RESULTS);
+        for(int j = 0; j < movieIDs.length; j++) {
+            int movieID = movieIDs[j];
+            String baseURL = "https://api.themoviedb.org/3/movie/" + movieID + "/reviews";
+            Uri builtUri = Uri.parse(baseURL).buildUpon()
+                    .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_API_KEY)
+                    .build();
+            String reviews_value = getConnection(builtUri);
+            JSONObject reviewsJson = new JSONObject(reviews_value);
+            final String RV_ID = "id";
+            final String RV_AUTHOR = "author";
+            final String RV_CONTENT = "content";
+            final String RV_RESULTS = "results";
+            ContentValues reviewValues = new ContentValues();
 
-        for(int i = 0; i < reviewArray.length(); i++) {
-            // For now, using the format "Day, description, hi/low"
+            JSONArray reviewArray = reviewsJson.getJSONArray(RV_RESULTS);
 
-            int reviewsId;
-            String reviewContent;
-            String reviewAuthor;
+            for (int i = 0; i < reviewArray.length(); i++) {
+                // For now, using the format "Day, description, hi/low"
 
-            // Get the JSON object representing the day
-            JSONObject aReview = reviewArray.getJSONObject(i);
-            // The date/time is returned as a long.  We need to convert that
-            // into something human-readable, since most people won't read "1400356800" as
-            // "this saturday".
-            // description is in a child array called "weather", which is 1 element long.
+                String reviewsId;
+                String reviewContent;
+                String reviewAuthor;
 
-            reviewsId = aReview.getInt(RV_ID);
-            reviewContent = aReview.getString(RV_CONTENT);
-            reviewAuthor = aReview.getString(RV_AUTHOR);
+                // Get the JSON object representing the day
+                JSONObject aReview = reviewArray.getJSONObject(i);
+                // The date/time is returned as a long.  We need to convert that
+                // into something human-readable, since most people won't read "1400356800" as
+                // "this saturday".
+                // description is in a child array called "weather", which is 1 element long.
+
+                reviewsId = aReview.getString(RV_ID);
+                reviewContent = aReview.getString(RV_CONTENT);
+                reviewAuthor = aReview.getString(RV_AUTHOR);
 
 
+                //Need to have a function to build reviewValues and Video values here and that needs
+                //buildReviewValues
+                //Create and put all the movie values here
+                reviewValues.put(MovieContract.ReviewsEntry.COLUMN_MOVIEKEY, movieID);
+                reviewValues.put(MovieContract.ReviewsEntry.COLUMN_REVIEWS_AUTHOR, reviewAuthor);
+                reviewValues.put(MovieContract.ReviewsEntry.COLUMN_REVIEWS_CONTENT, reviewContent);
+                reviewValues.put(MovieContract.ReviewsEntry.COLUMN_REVIEWS_ID, reviewsId);
+                Uri yUri = myContext.getContentResolver().insert(MovieContract.MoviesEntry.REVIEW_URI, reviewValues);
 
-            //Need to have a function to build reviewValues and Video values here and that needs
-            //buildReviewValues
-            //Create and put all the movie values here
-            reviewValues.put(MovieContract.ReviewsEntry.COLUMN_MOVIEKEY, movieID);
-            reviewValues.put(MovieContract.ReviewsEntry.COLUMN_REVIEWS_AUTHOR, reviewAuthor);
-            reviewValues.put(MovieContract.ReviewsEntry.COLUMN_REVIEWS_CONTENT, reviewContent);
-            reviewValues.put(MovieContract.ReviewsEntry.COLUMN_REVIEWS_ID, reviewsId);
-            Uri yUri = myContext.getContentResolver().insert(MovieContract.MoviesEntry.REVIEW_URI, reviewValues);
-
+            }
         }
         return null;
     }
 
-    private ContentValues getVideofromId(String movieID)
+    private Void getVideofromId(int []  movieIDs)
             throws JSONException {
-        String baseURL = "https://api.themoviedb.org/3/movie/" + movieID + "/videos";
-        Uri builtUri = Uri.parse(baseURL).buildUpon()
-                .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_API_KEY)
-                .build();
-        String video_value = getConnection(builtUri);
-        JSONObject videoJson = new JSONObject(video_value);
-        final String VD_ID = "id";
-        final String VD_NAME = "author";
-        final String VD_URL = "content";
-        final String VD_SIZE = "size" ;
-        final String VD_RESULTS = "results";
 
-        ContentValues videoValues = new ContentValues();
+        for(int j = 0; j < movieIDs.length; j++) {
+            int movieID = movieIDs[j];
+            String baseURL = "https://api.themoviedb.org/3/movie/" + movieID + "/videos";
+            Uri builtUri = Uri.parse(baseURL).buildUpon()
+                    .appendQueryParameter(APPID_PARAM, BuildConfig.MOVIE_API_KEY)
+                    .build();
+            String video_value = getConnection(builtUri);
+            JSONObject videoJson = new JSONObject(video_value);
+            final String VD_ID = "id";
+            final String VD_NAME = "name";
+            final String VD_URL = "key";
+            final String VD_SIZE = "size";
+            final String VD_RESULTS = "results";
 
-        JSONArray videoArray = videoJson.getJSONArray(VD_RESULTS);
+            ContentValues videoValues = new ContentValues();
 
-        for(int i = 0; i < videoArray.length(); i++) {
-            // For now, using the format "Day, description, hi/low"
+            JSONArray videoArray = videoJson.getJSONArray(VD_RESULTS);
 
-            int videoId;
-            String videoName;
-            String videoURL;
-            int videoSize;
+            for (int i = 0; i < videoArray.length(); i++) {
+                // For now, using the format "Day, description, hi/low"
 
-            // Get the JSON object representing the day
-            JSONObject aVideo = videoArray.getJSONObject(i);
-            // The date/time is returned as a long.  We need to convert that
-            // into something human-readable, since most people won't read "1400356800" as
-            // "this saturday".
-            // description is in a child array called "weather", which is 1 element long.
+                String videoId;
+                String videoName;
+                String videoURL;
+                int videoSize;
 
-            videoId = aVideo.getInt(VD_ID);
-            videoName = aVideo.getString(VD_NAME);
-            videoURL = "https://www.youtube.com/watch?v=" + aVideo.getString(VD_URL);
-            videoSize = aVideo.getInt(VD_SIZE);
+                // Get the JSON object representing the day
+                JSONObject aVideo = videoArray.getJSONObject(i);
+                // The date/time is returned as a long.  We need to convert that
+                // into something human-readable, since most people won't read "1400356800" as
+                // "this saturday".
+                // description is in a child array called "weather", which is 1 element long.
+
+                videoId = aVideo.getString(VD_ID);
+                videoName = aVideo.getString(VD_NAME);
+                videoURL = "https://www.youtube.com/watch?v=" + aVideo.getString(VD_URL);
+                videoSize = aVideo.getInt(VD_SIZE);
 
 
-
-            //Need to have a function to build reviewValues and Video values here and that needs
-            //buildReviewValues
-            //Create and put all the movie values here
-            videoValues.put(MovieContract.VideoEntry.COLUMN_MOVIEKEY, movieID);
-            videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_ID, videoId);
-            videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_NAME, videoName);
-            videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_URL, videoURL);
-            videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_SIZE, videoSize);
-            Uri zUri = myContext.getContentResolver().insert(MovieContract.MoviesEntry.VIDEOS_URI, videoValues);
-
+                //Need to have a function to build reviewValues and Video values here and that needs
+                //buildReviewValues
+                //Create and put all the movie values here
+                videoValues.put(MovieContract.VideoEntry.COLUMN_MOVIEKEY, movieID);
+                videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_ID, videoId);
+                videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_NAME, videoName);
+                videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_URL, videoURL);
+                videoValues.put(MovieContract.VideoEntry.COLUMN_VIDEOS_SIZE, videoSize);
+                Uri zUri = myContext.getContentResolver().insert(MovieContract.MoviesEntry.VIDEOS_URI, videoValues);
+                Log.e("URi","s"+zUri);
+            }
         }
         return null;
     }
 
 
-    private Void getMovieDataFromJson(String movieJsonStr, String menuOption)
+    private int[] getMovieDataFromJson(String movieJsonStr, String menuOption)
             throws JSONException {
         // These are the names of the JSON objects that need to be extracted.
         final String MV_RESULTS = "results";
@@ -157,6 +149,8 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
         final String  MV_RATING  = "vote_average";
         final String MV_YEAR = "release_date";
         final String MV_ID = "id";
+        int [] movieids = new int[20];
+
         Uri newUri = Uri.EMPTY;
         JSONObject movieJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = movieJson.getJSONArray(MV_RESULTS);
@@ -183,6 +177,7 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
             releaseyr = aMovie.getString(MV_YEAR);
             rating = aMovie.getString(MV_RATING);
             movieid = aMovie.getInt(MV_ID);
+            movieids[i] = movieid;
             //To just get the year, it is the first four characters; hence doing a substring
             releaseyr = releaseyr.substring(0, 4);
             imagepath = "http://image.tmdb.org/t/p/w185" + aMovie.getString(MV_PSTR);
@@ -209,18 +204,17 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 newUri = MovieContract.MoviesEntry.CONTENT_URI.buildUpon().appendPath("Rank").build();
                 Uri xUri =  myContext.getContentResolver().insert(newUri, movieValues);
                 }
-            insertReviewFromId(MovieContract.MoviesEntry.COLUMN_MOVIEID);
 
-            ContentValues videoValues = getVideofromId(MovieContract.MoviesEntry.COLUMN_MOVIEID);
 
              }
-        return null;
+        return movieids;
        }
 
 
     @Override
-    protected Void doInBackground(String... params) {
+    protected Void doInBackground(Void... params) {
         String forecastJsonStr;
+        int [] movieids = new int [20];
 
 //        Log.v("units type1", params[0]);
         final String [] MOVIE_URL = {
@@ -239,8 +233,22 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
 
 
             try {
-                getMovieDataFromJson(forecastJsonStr, MOVIE_BASE_URL);
+                 movieids = getMovieDataFromJson(forecastJsonStr, MOVIE_BASE_URL);
             } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+            try{
+                insertReviewFromId(movieids);
+            }
+            catch (Exception e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+            try{
+                getVideofromId(movieids);
+            }
+            catch (Exception e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
@@ -281,16 +289,29 @@ public class FetchMovieTask extends AsyncTask<String, Void, Void> {
                 // Stream was empty.  No point in parsing.
                 forecastJsonStr = null;
             }
+            forecastJsonStr = buffer.toString();
+
         }
             catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
             }
         finally
         {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+            }
 
         }
 
 
-        return null;
+        return forecastJsonStr;
     }
 
 }

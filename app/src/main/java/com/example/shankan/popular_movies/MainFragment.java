@@ -86,8 +86,7 @@ public class MainFragment extends Fragment  implements LoaderManager.LoaderCallb
     public void updateWeather()
     {
         FetchMovieTask weatherTask = new FetchMovieTask( getContext());
-        sorttype = prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_rank));
-        weatherTask.execute(sorttype);
+        weatherTask.execute();
     }
 
     @Override
@@ -123,6 +122,7 @@ public class MainFragment extends Fragment  implements LoaderManager.LoaderCallb
 
     void onSortChanged(){
         updateWeather();
+        sorttype = prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_rank));
         getLoaderManager().restartLoader(MOVIES_LOADER, null, this);
     }
     @Override

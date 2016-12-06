@@ -53,8 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences prefs
-                = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs  = PreferenceManager.getDefaultSharedPreferences(this);
         String sorttype = prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_rank));
         // update the location in our second pane using the fragment manager
         if (sorttype != null && !sorttype.equals(mSortType)) {

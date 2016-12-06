@@ -53,7 +53,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
 
                 // the ID of the location entry associated with this weather data
                 VideoEntry.COLUMN_VIDEOS_URL + " TEXT NOT NULL, " +
-                VideoEntry.COLUMN_VIDEOS_ID + " INTEGER PRIMARY KEY, " +
+                VideoEntry.COLUMN_VIDEOS_ID + " INTEGER NOT NULL, " +
                 VideoEntry.COLUMN_VIDEOS_NAME + " TEXT NOT NULL, " +
                 VideoEntry.COLUMN_VIDEOS_SIZE + " INTEGER NOT NULL, " +
                 " FOREIGN KEY (" + VideoEntry.COLUMN_MOVIEKEY + ") REFERENCES " +
